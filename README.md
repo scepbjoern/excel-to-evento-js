@@ -2,7 +2,9 @@
 
 Automatischer Import von Noten aus Excel in die ZHAW EventoWeb-Qualifikationsseite.
 
-[![YouTube: Ausgangslage und Demo](https://img.youtube.com/vi/PLACEHOLDER_VIDEO_1/0.jpg)](https://www.youtube.com/watch?v=PLACEHOLDER_VIDEO_1)
+Sorry für die schlechte Tonqualität. Ich musste das Video mit dem eingebauten Mikrofon aufnehmen.
+
+[![YouTube: Ausgangslage und Demo](https://img.youtube.com/vi/c4WZSbJMt-U/0.jpg)](https://www.youtube.com/watch?v=c4WZSbJMt-U)
 
 ## Überblick
 
@@ -36,7 +38,8 @@ Schnelle Lösung für technisch versierte Benutzer.
 2. DevTools mit F12 öffnen → Tab "Console"
 3. Snippet-Code einfügen und ausführen
 
-📺 **Video-Anleitung:** [DevTools Snippet Nutzung](https://www.youtube.com/watch?v=PLACEHOLDER_VIDEO_2)
+📺 **Video-Anleitung:** 
+[![DevTools Snippet Nutzung](https://img.youtube.com/vi/kHErDvA99og/0.jpg)](https://www.youtube.com/watch?v=kHErDvA99og)
 
 [→ Detaillierte Anleitung](docs/Manuals/01_Bedienungsanleitung-DevTools-Snippet.md)
 
@@ -65,7 +68,8 @@ Komfortable Lösung mit grafischem UI für regelmässige Nutzung.
 2. Panel "Evento Note Importer" erscheint automatisch rechts unten
 3. Excel-Datei hochladen und Noten anwenden
 
-📺 **Video-Anleitung:** [Tampermonkey Userscript Nutzung](https://www.youtube.com/watch?v=PLACEHOLDER_VIDEO_3)
+📺 **Video-Anleitung:**
+[![Tampermonkey Userscript Nutzung](https://img.youtube.com/vi/uUeG2u394oI/0.jpg)](https://www.youtube.com/watch?v=uUeG2u394oI)
 
 [→ Detaillierte Anleitung](docs/Manuals/02_Bedienungsanleitung-Tampermonkey-Userscript.md)
 
@@ -135,9 +139,12 @@ Nach dem Import enthält die Spalte `Resultat`:
 - Keine Daten werden an externe Server gesendet
 - Keine Cloud-Anbindung
 
-## Mitwirken
+## Mitwirken und Making Of
 
-Dieses Projekt wurde für Dozenten der ZHAW entwickelt.
+Dieses Projekt wurde für Dozenten der ZHAW entwickelt. Wenn Du selbst daran weiter entwickeln möchtest oder mehr darüber erfahren möchtest, wie der Code entstanden ist, dann schau' Dir das folgende Making Of-Video an.
+
+📺 **Making Of-Video:**
+[![Making Of-Video](https://img.youtube.com/vi/r5GQHO5wXP8/0.jpg)](https://www.youtube.com/watch?v=r5GQHO5wXP8)
 
 ## Lizenz
 
