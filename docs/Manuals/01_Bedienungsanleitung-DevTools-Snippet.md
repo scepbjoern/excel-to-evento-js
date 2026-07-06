@@ -70,23 +70,24 @@ Das **Evento Note Import Snippet** ermöglicht das automatische Übertragen von 
 
 ### 3.3 Gültige Noten
 
-Folgende Notenwerte werden akzeptiert:
+Es werden Viertelnoten akzeptiert (0.25-Schritte zwischen 1.0 und 6.0), z.B.:
 
 | Eingabe | Wird zu |
 |---------|---------|
-| 1, 1.0, 1,0 | 1.0 |
-| 1.5, 1,5 | 1.5 |
-| 2, 2.0, 2,0 | 2.0 |
-| 2.5, 2,5 | 2.5 |
-| 3, 3.0, 3,0 | 3.0 |
-| 3.5, 3,5 | 3.5 |
-| 4, 4.0, 4,0 | 4.0 |
-| 4.5, 4,5 | 4.5 |
-| 5, 5.0, 5,0 | 5.0 |
-| 5.5, 5,5 | 5.5 |
-| 6, 6.0, 6,0 | 6.0 |
+| 1, 1.0, 1,0 | 1.00 |
+| 1.25, 1,25 | 1.25 |
+| 1.5, 1,5 | 1.50 |
+| 1.75, 1,75 | 1.75 |
+| 2, 2.0, 2,0 | 2.00 |
+| ... | ... |
+| 5.25, 5,25 | 5.25 |
+| 5.5, 5,5 | 5.50 |
+| 5.75, 5,75 | 5.75 |
+| 6, 6.0, 6,0 | 6.00 |
 
-**Wichtig:** Andere Werte (z.B. 2.3, 4.7) werden **nicht akzeptiert** und nicht gerundet! Diese Einträge erscheinen in der Ergebnisdatei unter "Invalid Grades" und müssen manuell korrigiert werden.
+Das Tool setzt die Note im Dropdown, indem es nach der passenden Option anhand ihres Anzeigetexts sucht. Welche Viertelnoten dabei tatsächlich gesetzt werden können, hängt davon ab, welche Optionen das jeweilige Dropdown in EventoWeb anbietet (Bachelor i.d.R. nur halbe Noten, Master auch Viertelnoten).
+
+**Wichtig:** Andere Werte (z.B. 2.3, 4.7 – kein Viertel-Schritt) werden **nicht akzeptiert** und nicht gerundet! Diese Einträge erscheinen in der Ergebnisdatei unter "Invalid Grades" und müssen manuell korrigiert werden.
 
 ## 4. Schritt-für-Schritt Anleitung
 

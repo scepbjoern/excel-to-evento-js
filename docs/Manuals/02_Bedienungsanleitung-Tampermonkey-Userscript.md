@@ -51,10 +51,12 @@ Die Excel-Datei muss folgende Struktur haben:
 | Weber Lisa | 6.0 |
 
 ### 2.5 Gültige Noten
-Nur folgende Notenwerte werden akzeptiert (halbe Noten):
-- 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0
+Es werden Viertelnoten akzeptiert (0.25-Schritte zwischen 1.0 und 6.0):
+- z.B. 1.0, 1.25, 1.5, 1.75, 2.0, ..., 5.25, 5.5, 5.75, 6.0
 
-**Wichtig:** Ungültige Noten wie 2.3 oder 4.7 werden **nicht** gerundet, sondern als Fehler markiert.
+Welche dieser Noten in EventoWeb tatsächlich gesetzt werden können, hängt vom jeweiligen Dropdown ab (Bachelor bietet i.d.R. nur halbe Noten, Master auch Viertelnoten). Das Tool sucht die passende Option automatisch im Dropdown; existiert sie dort nicht, bleibt der Eintrag unverändert und wird in der Ergebnis-Excel vermerkt.
+
+**Wichtig:** Ungültige Noten wie 2.3 oder 4.7 (kein Viertel-Schritt) werden **nicht** gerundet, sondern als Fehler markiert.
 
 ---
 
