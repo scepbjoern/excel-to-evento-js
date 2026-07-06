@@ -20,17 +20,6 @@
     MAX_FILE_SIZE: 10 * 1024 * 1024 // 10MB
   };
 
-  const GRADE_MAP = {
-    '1': '10', '1.0': '10', '1.5': '11',
-    '2': '12', '2.0': '12', '2.5': '16',
-    '3': '17', '3.0': '17', '3.5': '18',
-    '4': '19', '4.0': '19', '4.5': '20',
-    '5': '21', '5.0': '21', '5.5': '22',
-    '6': '23', '6.0': '23'
-  };
-
-  const VALID_GRADES = ['1', '1.0', '1.5', '2', '2.0', '2.5', '3', '3.0', '3.5', '4', '4.0', '4.5', '5', '5.0', '5.5', '6', '6.0'];
-
   // ============ STYLES ============
   function injectStyles() {
     const styles = `
@@ -531,10 +520,10 @@
 
               // Validate grade
               const normalizedGrade = this.normalizeGrade(grade);
-              if (VALID_GRADES.includes(normalizedGrade)) {
+              if (normalizedGrade !== null) {
                 validData.push({ name, grade: normalizedGrade, rowIndex: i + 1 });
               } else {
-                invalidGrades.push({ name, grade, rowIndex: i + 1, reason: 'Ungültige Note' });
+                invalidGrades.push({ name, grade, rowIndex: i + 1, reason: 'Ungültige Note (nur Viertelnoten erlaubt)' });
               }
             }
 
@@ -558,17 +547,17 @@
     },
 
     normalizeGrade(grade) {
-      const num = parseFloat(grade);
-      if (isNaN(num)) return grade;
+      const num = parseFloat(String(grade).replace(',', '.'));
+      if (isNaN(num) || num < 1 || num > 6) return null;
 
-      // Check if it's a valid half-step grade
-      if (num >= 1 && num <= 6) {
-        const decimal = num % 1;
-        if (decimal === 0 || decimal === 0.5) {
-          return num.toFixed(1);
-        }
-      }
-      return grade; // Return original if invalid
+      // Nur exakte Viertelnoten sind gültig (0.25-Schritte), da dies die
+      // feinste in EventoWeb vorkommende Auflösung ist (Bachelor: 0.5,
+      // Master: teilweise 0.25).
+      const quarterSteps = num * 4;
+      if (Math.abs(quarterSteps - Math.round(quarterSteps)) > 1e-9) return null;
+
+      // Format wie im EventoWeb-Dropdown (zwei Nachkommastellen, z.B. "5.25")
+      return num.toFixed(2);
     },
 
     export(workbook, results, invalidGrades) {
@@ -639,7 +628,7 @@
         if (invalidGrades.length > 0) {
           const invalidData = [
             ['Name', 'Note', 'Zeile', 'Bemerkung'],
-            ...invalidGrades.map(e => [e.name, e.grade, e.rowIndex, 'Ungültige Note'])
+            ...invalidGrades.map(e => [e.name, e.grade, e.rowIndex, 'Ungültige Note - nur Viertelnoten erlaubt'])
           ];
           const invalidSheet = XLSX.utils.aoa_to_sheet(invalidData);
           
@@ -703,31 +692,27 @@
     },
 
     setGrade(selectElement, grade) {
-      const normalizedGrade = this.normalizeGradeForMap(grade);
-      const value = GRADE_MAP[normalizedGrade];
+      if (!selectElement) return false;
 
-      if (value && selectElement) {
-        selectElement.value = value;
+      // Statt einer fest codierten Werte-Tabelle wird die passende Option
+      // über ihren sichtbaren Text (z.B. "5.25") gesucht. Damit funktioniert
+      // das Skript unabhängig davon, ob die Seite nur halbe Noten (Bachelor)
+      // oder auch Viertelnoten (Master) anbietet, und unabhängig von den
+      // internen (nicht-linearen) Option-Values.
+      const commaGrade = grade.replace('.', ',');
+      const option = Array.from(selectElement.options)
+        .find(opt => {
+          const text = opt.textContent.trim();
+          return text === grade || text === commaGrade;
+        });
+
+      if (option) {
+        selectElement.value = option.value;
         selectElement.dispatchEvent(new Event('change', { bubbles: true }));
         this.highlightElement(selectElement);
         return true;
       }
       return false;
-    },
-
-    normalizeGradeForMap(grade) {
-      const num = parseFloat(grade);
-      if (isNaN(num)) return grade;
-      
-      // Try with decimal
-      const withDecimal = num.toFixed(1);
-      if (GRADE_MAP[withDecimal]) return withDecimal;
-      
-      // Try without decimal
-      const withoutDecimal = String(Math.floor(num));
-      if (GRADE_MAP[withoutDecimal]) return withoutDecimal;
-      
-      return grade;
     },
 
     highlightElement(element) {

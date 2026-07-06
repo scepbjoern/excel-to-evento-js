@@ -9,20 +9,6 @@
     COLUMN_GRADE: 'Note'
   };
 
-  const GRADE_MAP = {
-    '1':   '10', '1.0': '10',
-    '1.5': '11',
-    '2':   '12', '2.0': '12',
-    '2.5': '16',
-    '3':   '17', '3.0': '17',
-    '3.5': '18',
-    '4':   '19', '4.0': '19',
-    '4.5': '20',
-    '5':   '21', '5.0': '21',
-    '5.5': '22',
-    '6':   '23', '6.0': '23'
-  };
-
   // ========== HILFSFUNKTIONEN ==========
 
   /**
@@ -148,7 +134,7 @@
                 name: String(name).trim(),
                 grade: String(grade).trim(),
                 rowIndex: index + 2,
-                reason: 'Ungültige Note (nur halbe Noten erlaubt: 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6)'
+                reason: 'Ungültige Note (nur Viertelnoten erlaubt: 1.00, 1.25, 1.50, ..., 6.00)'
               });
               return;
             }
@@ -180,38 +166,26 @@
   }
 
   /**
-   * Normalisiert eine Note in das Standard-Format (z.B. "5" → "5.0")
-   * Keine Rundung! Nur exakte halbe Noten sind erlaubt.
+   * Normalisiert eine Note in das Standard-Format (z.B. "5" → "5.00")
+   * Keine Rundung! Nur exakte Viertelnoten (0.25-Schritte) sind erlaubt,
+   * da dies die feinste in EventoWeb vorkommende Notenauflösung ist
+   * (Bachelor: 0.5-Schritte, Master: teilweise 0.25-Schritte).
    * @param {string|number} grade
    * @returns {string|null}
    */
   function normalizeGrade(grade) {
-    // Konvertiere zu String
-    let gradeStr = String(grade).trim();
-    
-    // Ersetze Komma durch Punkt
-    gradeStr = gradeStr.replace(',', '.');
-    
-    // Prüfe ob es eine gültige Note ist (nur exakte halbe Noten)
-    const validGrades = ['1', '1.0', '1.5', '2', '2.0', '2.5', '3', '3.0', '3.5', '4', '4.0', '4.5', '5', '5.0', '5.5', '6', '6.0'];
-    
-    if (validGrades.includes(gradeStr)) {
-      // Normalisiere zu X.X Format
-      if (gradeStr === '1' || gradeStr === '1.0') return '1.0';
-      if (gradeStr === '1.5') return '1.5';
-      if (gradeStr === '2' || gradeStr === '2.0') return '2.0';
-      if (gradeStr === '2.5') return '2.5';
-      if (gradeStr === '3' || gradeStr === '3.0') return '3.0';
-      if (gradeStr === '3.5') return '3.5';
-      if (gradeStr === '4' || gradeStr === '4.0') return '4.0';
-      if (gradeStr === '4.5') return '4.5';
-      if (gradeStr === '5' || gradeStr === '5.0') return '5.0';
-      if (gradeStr === '5.5') return '5.5';
-      if (gradeStr === '6' || gradeStr === '6.0') return '6.0';
-    }
-    
-    // Keine Rundung - nur exakte halbe Noten sind gültig
-    return null;
+    // Konvertiere zu String und ersetze Komma durch Punkt
+    const gradeStr = String(grade).trim().replace(',', '.');
+    const num = parseFloat(gradeStr);
+
+    if (isNaN(num) || num < 1 || num > 6) return null;
+
+    // Nur exakte Viertelnoten sind gültig (1.00, 1.25, 1.50, ..., 6.00)
+    const quarterSteps = num * 4;
+    if (Math.abs(quarterSteps - Math.round(quarterSteps)) > 1e-9) return null;
+
+    // Format wie in EventoWeb-Dropdown (zwei Nachkommastellen, z.B. "5.25")
+    return num.toFixed(2);
   }
 
   /**
@@ -293,40 +267,44 @@
 
   /**
    * Setzt die Noten in den Select-Dropdowns
+   *
+   * Die Note wird nicht über eine fest codierte Werte-Tabelle gesetzt,
+   * sondern über den sichtbaren Options-Text (z.B. "5.25") im jeweiligen
+   * Dropdown gesucht. Damit funktioniert das Tool unabhängig davon, ob die
+   * Seite nur halbe Noten (Bachelor) oder auch Viertelnoten (Master) anbietet,
+   * und unabhängig von den internen (nicht-linearen) Option-Values.
    * @param {Array} matches
    * @returns {number} Anzahl erfolgreich gesetzter Noten
    */
   function setGrades(matches) {
     let successCount = 0;
-    
+
     matches.forEach(match => {
-      const value = GRADE_MAP[match.grade];
-      
-      if (!value) {
-        console.warn(`Kein Mapping für Note "${match.grade}" (${match.excelName})`);
-        return;
-      }
-      
-      // Prüfe ob der Wert als Option existiert
-      const option = match.selectElement.querySelector(`option[value="${value}"]`);
+      const commaGrade = match.grade.replace('.', ',');
+      const option = Array.from(match.selectElement.options)
+        .find(opt => {
+          const text = opt.textContent.trim();
+          return text === match.grade || text === commaGrade;
+        });
+
       if (!option) {
-        console.warn(`Option mit Wert "${value}" nicht gefunden für "${match.excelName}"`);
+        console.warn(`Keine Dropdown-Option für Note "${match.grade}" gefunden (${match.excelName})`);
         return;
       }
-      
+
       // Setze den Wert
-      match.selectElement.value = value;
-      
+      match.selectElement.value = option.value;
+
       // Visuelles Feedback
       match.selectElement.style.backgroundColor = '#90EE90';
-      
+
       // Triggere change-Event für ASP.NET
       const event = new Event('change', { bubbles: true });
       match.selectElement.dispatchEvent(event);
-      
+
       successCount++;
     });
-    
+
     return successCount;
   }
 
@@ -367,7 +345,7 @@
       invalidGrades.forEach(entry => {
         console.log(`  - ${entry.name}: "${entry.grade}" (Zeile: ${entry.rowIndex})`);
       });
-      console.log('   Hinweis: Nur halbe Noten erlaubt (1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6)');
+      console.log('   Hinweis: Nur Viertelnoten erlaubt (1.00, 1.25, 1.50, ..., 6.00)');
     }
     
     console.log('═══════════════════════════════════════\n');
@@ -431,7 +409,7 @@
       if (invalidGrades.length > 0) {
         const invalidGradesData = [
           ['Name', 'Note', 'Zeile', 'Bemerkung'],
-          ...invalidGrades.map(entry => [entry.name, entry.grade, entry.rowIndex, 'Ungültige Note - nur halbe Noten erlaubt'])
+          ...invalidGrades.map(entry => [entry.name, entry.grade, entry.rowIndex, 'Ungültige Note - nur Viertelnoten erlaubt'])
         ];
         const invalidGradesSheet = XLSX.utils.aoa_to_sheet(invalidGradesData);
         workbook.SheetNames.push('Invalid Grades');
